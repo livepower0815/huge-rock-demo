@@ -16,6 +16,11 @@
                 商品選購
               </router-link>
             </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/fireTest">
+                fire測試
+              </router-link>
+            </li>
             <!-- <li class="nav-item">
               <router-link class="nav-link" to="/order">
                 訂單列表

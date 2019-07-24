@@ -38,6 +38,11 @@ export default new Router({
           component:shopping,
         },
         {
+          path:'fireTest',
+          name:'fireTest',
+          component: () => import('@/views/HomePages/FireTest.vue'),
+        },
+        {
           path:'detail/:productId',
           name:'detail',
           component:detail,
