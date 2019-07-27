@@ -1,6 +1,5 @@
 <template>
   <div>
-    <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div class="text-right">
       <button class="btn btn-primary mt-4" @click="openModal(true)">建立新產品</button>
     </div>
@@ -18,9 +17,9 @@
         <tr v-for="(item, index) in products" :key="index">
           <td>{{ item.category }}</td>
           <td>{{ item.title }}</td>
-          <td>{{ item.description }}</td>
+          <td>{{ item.code }}</td>
           <td class="text-center">
-            <span v-if="item.is_enabled == 1" class="text-success">啟用</span>
+            <span v-if="item.is_enabled == 'Y'" class="text-success">啟用</span>
             <span v-else>未啟用</span>
           </td>
           <td>
@@ -37,7 +36,7 @@
 
     <!-- 下面是分頁component -->
 
-    <pagen @changePage="getProducts" :propPage="pagination"></pagen>
+    <!-- <pagen @changePage="getProducts" :propPage="pagination"></pagen> -->
 
     <!-- 下面是新增修改的modal -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -58,15 +57,15 @@
               <div class="col-sm-4">
                 <div class="form-group">
                   <label for="image">輸入圖片網址</label>
-                  <input type="text" class="form-control" id="image" v-model="tempProduct.imageUrl" placeholder="請輸入圖片連結">
+                  <input type="text" class="form-control" id="image" v-model="tempProduct.img_url" placeholder="請輸入圖片連結">
                 </div>
                 <div class="form-group">
                   <label for="customFile">或 上傳圖片
                     <i class="fas fa-spinner fa-spin" v-if="status.fileUploading"></i>
                   </label>
-                  <input type="file" id="customFile" class="form-control" @change="uploadFile" ref="files">
+                  <input v-if="status.resetFile" type="file" id="customFile" class="form-control" @change="uploadFile" ref="files">
                 </div>
-                <img class="img-fluid" :src="tempProduct.imageUrl" alt="">
+                <img class="img-fluid" :src="tempProduct.img_url" alt="">
               </div>
               <div class="col-sm-8">
                 <div class="form-group">
@@ -76,7 +75,7 @@
 
                 <div class="form-group">
                   <label for="description">產品編號</label>
-                  <input type="text" class="form-control" id="description" v-model="tempProduct.description" placeholder="請輸入產品編號">
+                  <input type="text" class="form-control" id="description" v-model="tempProduct.code" placeholder="請輸入產品編號">
                 </div>
 
 
@@ -91,32 +90,16 @@
                       <option value="防水">防水</option>
                     </select>
                   </div>
-                  <div class="form-group col-md-6">
-                    <!-- <label for="price">單位</label>
-                    <input type="unit" class="form-control" id="unit" v-model="tempProduct.unit" placeholder="請輸入單位"> -->
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <!-- <label for="origin_price">原價</label>
-                    <input type="number" class="form-control" id="origin_price" v-model="tempProduct.origin_price"
-                      placeholder="請輸入原價"> -->
-                  </div>
-                  <div class="form-group col-md-6">
-                    <!-- <label for="price">售價</label>
-                    <input type="number" class="form-control" id="price" v-model="tempProduct.price" placeholder="請輸入售價"> -->
-                  </div>
                 </div>
                 <hr>
                 <div class="form-group">
                   <label for="content">說明內容</label>
-                  <textarea type="text" class="form-control" id="content" v-model="tempProduct.content" placeholder="請輸入產品說明內容"></textarea>
+                  <textarea type="text" class="form-control" id="content" v-model="tempProduct.description" placeholder="請輸入產品說明內容"></textarea>
                 </div>
                 <div class="form-group">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="tempProduct.is_enabled" :true-value="1"
-                      :false-value="0" id="is_enabled">
+                    <input class="form-check-input" type="checkbox" v-model="tempProduct.is_enabled" :true-value="'Y'"
+                      :false-value="'N'" id="is_enabled">
                     <label class="form-check-label" for="is_enabled">
                       是否啟用
                     </label>
@@ -162,6 +145,7 @@
 
 <script>
   import $ from 'jquery';
+  import {db, storage} from '@/firebase.js'
   import pagen from '../../components/pagination';
   export default {
     components:{
@@ -172,64 +156,94 @@
         products: [],
         pagination: {},
         tempProduct: {
-          origin_price: '2000',
-          price: '1000',
-          unit: '碼',
-          category: '',
+          title: '',
+          code: '',
+          category : '',
+          is_enabled: 'Y',
+          description: '',
+          img_url: '',
         },
         isNew: false,
         isLoading: false,
         fullPage: true,
         status: {
           fileUploading: false,
+          resetFile: false,
         },
-      };
+      }
     },
     methods: {
-      getProducts(page = 1) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/admin/products?page=${page}`;
-        const vm = this;
-        vm.isLoading = true;
-        this.$http.get(api).then(res => {
-          vm.products = res.data.products;
-          vm.isLoading = false;
-          vm.pagination = res.data.pagination;
-        });
+      getProducts() {  // get products list
+        const vm = this
+        db.ref('huge-products').on('value', function (snapshot) {
+          vm.products = vm.listFormat(snapshot.val())
+        })
+      },
+      listFormat (firebaseList) {  // compile firebase list to array
+        let newAry = []
+        for(let item in firebaseList) {
+          newAry.push({
+            ...firebaseList[item],
+            index: item
+          })
+        }
+        return newAry
       },
       openModal(isNew, item) {
         if (isNew) {
           this.tempProduct = {
-            origin_price: '2000',
-            price: '1000',
-            unit: '碼',
-            category: '',
-          };
+            title: '',
+            code: '',
+            category : '',
+            is_enabled: 'Y',
+            description: '',
+            img_url: '',
+          }
           this.isNew = true;
         } else {
-          this.tempProduct = Object.assign({}, item);
+          this.tempProduct = {...item}
           this.isNew = false;
         }
+        this.status.resetFile = true
         $('#productModal').modal('show');
       },
       updatePorduct() {
-        let api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/admin/product`;
-        const vm = this;
-        let httpMethod = 'post'
-        if (!vm.isNew) {
-          api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/admin/product/${vm.tempProduct.id}`;
-          httpMethod = 'put';
+        const vm = this
+        if (this.isNew) {  // 新增產品
+          db.ref('huge-products').push({
+            title: vm.tempProduct.title,
+            code: vm.tempProduct.code,
+            category : vm.tempProduct.category,
+            is_enabled: vm.tempProduct.is_enabled,
+            description: vm.tempProduct.description,
+            img_url: vm.tempProduct.img_url,
+          }).then(result => {
+            vm.$notify({
+              title: '成功',
+              message: `新增 ${vm.tempProduct.title} 成功`,
+              type: 'success'
+            });
+            $('#productModal').modal('hide');
+            vm.status.resetFile = false
+          })
+        } else {  // 更新產品
+          db.ref(`huge-products/${vm.tempProduct.index}`).set({
+            title: vm.tempProduct.title,
+            code: vm.tempProduct.code,
+            category : vm.tempProduct.category,
+            is_enabled: vm.tempProduct.is_enabled,
+            description: vm.tempProduct.description,
+            img_url: vm.tempProduct.img_url,
+          }).then(result => {
+            vm.$notify({
+              title: '成功',
+              message: `更新 ${vm.tempProduct.title} 成功`,
+              type: 'success'
+            });
+            $('#productModal').modal('hide');
+            vm.status.resetFile = false
+          })
         }
-        this.$http[httpMethod](api, {
-          data: vm.tempProduct
-        }).then(res => {
-          if (res.data.success) {
-            $('#productModal').modal('hide');
-            vm.getProducts();
-          } else {
-            $('#productModal').modal('hide');
-            console.log('新增失敗');
-          }
-        });
       },
       deleteModal(item) {
         this.tempProduct = Object.assign({}, item);
@@ -243,30 +257,27 @@
           vm.getProducts();
         });
       },
-      uploadFile() {
-        const uploadedFile = this.$refs.files.files[0];
-        const vm = this;
-        vm.status.fileUploading = true;
-        const formData = new FormData();
-        formData.append('file-to-upload', uploadedFile);
-        const url = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/admin/upload`;
-        this.$http.post(url, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
-          if (res.data.success) {
-            vm.$set(vm.tempProduct, 'imageUrl', res.data.imageUrl);
-            vm.status.fileUploading = false;
-          } else {
-            vm.$bus.$emit('messsagePush', res.data.message, 'danger');
-            vm.status.fileUploading = false;
-          }
-        });
+      next (snapshot) {  //  計算上傳進度
+        let percent = snapshot.bytesTransferred / snapshot.totalBytes * 100;
+        console.log(percent + "% done");
+      },
+      completeUpload () {  // 上傳完成
+        console.log('loading was completed !')
+        const vm = this
+        storage.ref('photo/' + vm.currentFileName).getDownloadURL().then(url => {
+          vm.tempProduct.img_url = url
+        })
+      },
+      uploadFile () {  // 上傳照片並回傳網址
+        const vm = this
+        const uploadedFile = this.$refs.files.files[0]
+        this.currentFileName = uploadedFile.name
+        storage.ref('photo/' + uploadedFile.name).put(uploadedFile)
+          .on('state_changed',vm.next ,null, vm.completeUpload)
       },
     },
-    created() {
-      this.getProducts();
+    created() {  //  初始化
+      this.getProducts()
     }
   };
 

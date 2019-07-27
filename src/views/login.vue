@@ -1,21 +1,21 @@
 <template>
   <div>
     <navbar/>
-    <form class="form-signin" @submit.prevent="signin">
-      <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-      <label for="inputEmail" class="sr-only">Email address</label>
-      <input type="email" id="inputEmail" class="form-control" placeholder="Email address" v-model="user.username"
+    <form class="form-signin py-5" @submit.prevent="signin">
+      <h1 class="h3 mb-3 font-weight-normal">請輸入帳號密碼</h1>
+      <label for="inputEmail" class="sr-only">請輸入帳號</label>
+      <input type="email" id="inputEmail" class="form-control my-3" placeholder="Email address" v-model="user.username"
         required autofocus>
       <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" v-model="user.password"
+      <input type="password" id="inputPassword" class="form-control my-3" placeholder="Password" v-model="user.password"
         required>
-      <div class="checkbox mb-3">
+      <!-- <div class="checkbox mb-3">
         <label>
           <input type="checkbox" value="remember-me"> Remember me
         </label>
-      </div>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p>
+      </div> -->
+      <button class="btn btn-lg btn-primary btn-block" type="submit">登入</button>
+      <p class="mt-5 mb-3 text-muted">&copy; 2019-2020</p>
     </form>
   </div>
 </template>
@@ -80,8 +80,11 @@
   .form-signin {
     width: 100%;
     max-width: 330px;
+    border: black solid 2px;
+    border-radius: 12px;
     padding: 15px;
-    margin: auto;
+    margin: 10vh auto;
+    background: rgb(246, 246, 246);
   }
 
   .form-signin .checkbox {
