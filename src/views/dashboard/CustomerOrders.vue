@@ -14,12 +14,7 @@
             <p class="card-text">{{ item.description }}</p>
           </div>
           <div class="card-footer d-flex">
-            <button type="button" class="btn btn-outline-secondary btn-sm" @click="getProduct(item)">
-              <!-- <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i> -->
-              查看更多
-            </button>
-            <button type="button" class="btn btn-outline-info btn-sm ml-auto" @click="addtoCart(item)">
-              <!-- <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i> -->
+            <button type="button" class="btn btn-outline-info btn-sm ml-auto" @click="getProduct(item)">
               加到購物車
             </button>
           </div>
@@ -43,20 +38,32 @@
             <div class="h5 my-4">
               {{tempProduct.description}}
             </div>
-            <select class="form-control" v-model="optionNum">
-              <option v-for="(i, index) in 8" :key="index" :value="i">選購{{ i }}件</option>
-            </select>
+            <div class="row">
+              <div class="col-4">
+                <select style="width: 150px;" class="form-control" v-model="optionType">
+                  <option value="A4-SWATCH">A4-SWATCH</option>
+                  <option value="handout">handout</option>
+                  <option value="yard">yard</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <select style="width: 100px;" class="form-control" v-model="optionNum">
+                  <option v-for="(i, index) in 8" :key="`type-${index}`" :value="i">{{ i }} unit</option>
+                </select>
+              </div>
+              <div class="col-4"></div>
+            </div>
           </div>
           <div class="modal-footer">
             <!-- <span class="pr-3 text-secondary">合計 {{ optionNum * tempProduct.price }} 元</span> -->
-            <button type="button" class="btn btn-info" @click="addtoCart(tempProduct,optionNum)">Add to cart</button>
+            <button type="button" class="btn btn-info" @click="addtoCart(tempProduct, optionType, optionNum)">Add to cart</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 購物車列表 -->
-    <!-- <div class="row d-flex justify-content-center my-5">
+    <div class="row d-flex justify-content-center my-5">
       <div class="col-md-6">
         <table class="table">
           <thead>
@@ -66,43 +73,21 @@
             <th>單價</th>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in cart.carts" :key="index">
+            <tr v-for="(item, index) in carts" :key="`carts-${index}`">
               <td class="align-middle">
-                <button type="button" class="btn btn-outline-danger btn-sm" @click="removeCart(item.id)">
+                <button type="button" class="btn btn-outline-danger btn-sm" @click="removeCart(item.product_name, index)">
                   <i class="far fa-trash-alt"></i>
                 </button>
               </td>
               <td class="align-middle">
-                {{item.product.title}}
-                <div class="text-success" v-if="item.coupon">
-                  已套用優惠券
-                </div>
+                {{item.product_name}}
               </td>
-              <td class="align-middle"> {{item.qty}} / {{item.product.unit}} </td>
-              <td class="align-middle text-right"> {{item.final_total | NumCeiling}} </td>
+              <td class="align-middle"> {{item.product_type}} / {{item.product_qty}} </td>
             </tr>
           </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" class="text-right">總計</td>
-              <td class="text-right"> {{cart.total}} </td>
-            </tr>
-            <tr v-if="cart.final_total !== cart.total">
-              <td colspan="3" class="text-right text-success">折扣價</td>
-              <td class="text-right text-success"> {{cart.final_total}} </td>
-            </tr>
-          </tfoot>
         </table>
-        <div class="input-group mb-3 input-group-sm">
-          <input type="text" class="form-control" v-model="coupon_code" placeholder="請輸入優惠碼">
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" @click="addCouponCode">
-              套用優惠碼
-            </button>
-          </div>
-        </div>
       </div>
-    </div> -->
+    </div>
 
     <!-- 建立訂單 -->
     <!-- <div class="my-5 row justify-content-center">
@@ -172,7 +157,7 @@
         products: [],
         pagination: {},
         tempProduct: {},
-        cart: {},
+        carts: [],
         form:{
           user: {
             name: '',
@@ -189,6 +174,7 @@
           loadingItem: '',
         },
         optionNum: 1,
+        optionType: 'A4-SWATCH',
         coupon_code: '',
       };
     },
@@ -204,67 +190,34 @@
       getProduct(item) {  // 顯示 商品詳細資訊
         const vm = this
         vm.tempProduct = item
+        vm.optionType = 'A4-SWATCH'
+        vm.optionNum = 1
         $('#productModal').modal('show');
       },
-      addtoCart(item, qty = 1) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
-        const vm = this;
-        vm.status.loadingItem = item.id;
-        const cart = {
-          data: {
-            product_id: item.id,
-            qty,
-          },
-        };
-        this.$http.post(api, cart).then((res) => {
-          vm.status.loadingItem = '';
-          this.getCart();
-          $('#productModal').modal('hide');
-          let masg = item.title + res.data.message;
-          // vm.$bus.$emit('messsagePush', masg, 'success');
-          vm.$notify({
-            title: '新增成功',
-            message: masg,
-            type: 'success'
-          });
+      addtoCart(item, type, qty = 1) {  //  添加至購物車
+        const vm = this
+        vm.carts.push({
+          product_name: item.title,
+          product_img_url: item.img_url,
+          product_type: type,
+          product_qty: qty,
+        })
+        localStorage.cartList = JSON.stringify(vm.carts)
+        $('#productModal').modal('hide')
+      },
+      removeCart(product_name, index) {
+        const vm = this
+        vm.carts.splice(index, 1)
+        localStorage.cartList = JSON.stringify(vm.carts)
+        vm.$notify({
+          title: '刪除成功',
+          message: `已刪除${product_name}`,
+          type: 'success'
         });
       },
-      removeCart(id) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart/${id}`;
-        const vm = this;
-        vm.isLoading = true;
-        this.$http.delete(api).then((res) => {
-          this.getCart();
-          // vm.$bus.$emit('messsagePush', res.data.message, 'success');
-          vm.$notify({
-            title: '刪除成功',
-            message: res.data.message,
-            type: 'success'
-          });
-          vm.isLoading = false;
-        });
-      },
-      getCart() {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
-        const vm = this;
-        this.$http.get(api).then((res) => {
-          vm.cart = res.data.data;
-        });
-      },
-      addCouponCode() {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/coupon`;
-        const vm = this;
-        let couponCode = {
-          data: {
-            code: vm.coupon_code
-          }
-        };
-        vm.isLoading = true;
-        this.$http.post(api, couponCode).then((res) => {
-          vm.$bus.$emit('messsagePush', res.data.message, 'success');
-          vm.isLoading = false;
-          this.getCart();
-        });
+      getCart() {  // 取得購物車
+        const vm = this
+        vm.carts = localStorage.cartList ? JSON.parse(localStorage.cartList) : []
       },
       createOrder(){
         const vm = this;
@@ -290,8 +243,8 @@
       },
     },
     created() {
-      this.getProducts();
-      // this.getCart();
+      this.getProducts();  // 取得商品列表
+      this.getCart()  // 取得購物車
     },
   }
 

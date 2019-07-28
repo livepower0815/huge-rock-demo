@@ -85,6 +85,7 @@
     padding: 15px;
     margin: 10vh auto;
     background: rgb(246, 246, 246);
+    box-shadow: 5px 5px 10px rgb(120, 120, 120);
   }
 
   .form-signin .checkbox {
