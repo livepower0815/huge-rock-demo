@@ -1,63 +1,47 @@
 <template>
   <div>
-    <!-- loading effect -->
-    <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="fullPage"></loading>
-
     <!-- 商品列表 -->
     <div class="row my-4">
       <div class="col-md-4 mb-4" v-for="(item, index) in products" :key="index">
         <div class="card border-0 shadow-sm">
-          <div style="height: 250px; background-size: cover; background-position: center" :style="{backgroundImage:`url(${item.imageUrl})`}">
+          <div style="height: 250px; background-size: cover; background-position: center" :style="{backgroundImage:`url(${item.img_url})`}">
           </div>
           <div class="card-body">
             <span class="badge badge-secondary float-right ml-2">{{ item.category }}</span>
             <h5 class="card-title">
               <a href="#" class="text-dark">{{ item.title }}</a>
             </h5>
-            <p class="card-text">{{ item.content }}</p>
-            <div class="d-flex justify-content-between align-items-baseline">
-              <!-- <div class="h5">2,800 元</div> -->
-              <!-- <del class="h6">原價 {{ item.origin_price }} 元</del>
-              <div class="h5">現在只要 <span class="text-danger">{{ item.price }}</span> 元</div> -->
-            </div>
+            <p class="card-text">{{ item.description }}</p>
           </div>
           <div class="card-footer d-flex">
-            <button type="button" class="btn btn-outline-secondary btn-sm" @click="getProduct(item.id)">
-              <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i>
+            <button type="button" class="btn btn-outline-secondary btn-sm" @click="getProduct(item)">
+              <!-- <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i> -->
               查看更多
             </button>
             <button type="button" class="btn btn-outline-info btn-sm ml-auto" @click="addtoCart(item)">
-              <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i>
+              <!-- <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i> -->
               加到購物車
             </button>
           </div>
         </div>
       </div>
     </div>
-    <pagen @changePage="getProducts" :propPage="pagination"></pagen>
+    <!-- <pagen @changePage="getProducts" :propPage="pagination"></pagen> -->
 
     <!-- productModal -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="productModalLabel">{{tempProduct.title}} ({{ tempProduct.description }})</h5>
+            <h5 class="modal-title" id="productModalLabel">{{tempProduct.title}} ({{ tempProduct.code }})</h5>
             <button type="button" class="close" data-dismiss="modal">
               <span>&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <img class="img-fluid" :src='tempProduct.imageUrl' alt="">
+            <img class="img-fluid" :src='tempProduct.img_url' alt="">
             <div class="h5 my-4">
-              {{tempProduct.content}}
-            </div>
-            <!-- <div class="d-flex justify-content-end align-items-baseline mb-4">
               {{tempProduct.description}}
-            </div> -->
-            <div class="d-flex justify-content-between align-items-baseline mb-3">
-              <!-- <div class="h5">2,800 元</div> -->
-              <!-- <del class="h6">原價 {{tempProduct.origin_price}} 元</del>
-              <div class="h4">現在只要 {{tempProduct.price}} 元</div> -->
             </div>
             <select class="form-control" v-model="optionNum">
               <option v-for="(i, index) in 8" :key="index" :value="i">選購{{ i }}件</option>
@@ -176,6 +160,8 @@
 <script>
   import $ from 'jquery';
   import pagen from '../../components/pagination';
+  import {db} from '@/firebase.js'
+
 
   export default {
     components: {
@@ -202,31 +188,23 @@
         status: {
           loadingItem: '',
         },
-        optionNum: '',
+        optionNum: 1,
         coupon_code: '',
       };
     },
     methods: {
-      getProducts(page = 1) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/products?page=${page}`;
-        const vm = this;
-        vm.isLoading = true;
-        this.$http.get(api).then(res => {
-          vm.products = res.data.products;
-          vm.isLoading = false;
-          vm.pagination = res.data.pagination;
-        });
+      getProducts() {  // 取得商品列表
+        const vm = this
+        this.isLoading = true
+        db.ref('huge-products').once('value', function (snapshot) {
+          vm.products = vm.listFormat(snapshot.val())
+          vm.isLoading = false
+        })
       },
-      getProduct(id) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/product/${id}`;
-        const vm = this;
-        vm.status.loadingItem = id;
-        this.$http.get(api).then(res => {
-          vm.tempProduct = res.data.product;
-          vm.status.loadingItem = '';
-          vm.optionNum = 1;
-          $('#productModal').modal('show');
-        });
+      getProduct(item) {  // 顯示 商品詳細資訊
+        const vm = this
+        vm.tempProduct = item
+        $('#productModal').modal('show');
       },
       addtoCart(item, qty = 1) {
         const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
@@ -313,7 +291,7 @@
     },
     created() {
       this.getProducts();
-      this.getCart();
+      // this.getCart();
     },
   }
 

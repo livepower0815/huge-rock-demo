@@ -38,6 +38,22 @@ Vue.component('Loading',Loading);
 Vue.filter('currency',currencyFilter);
 Vue.filter('dateFormat',dateFormat);
 
+//  全局混入
+Vue.mixin({
+  methods: {
+    listFormat (firebaseList) {  // compile firebase list to array
+      let newAry = []
+      for (let item in firebaseList) {
+        newAry.push({
+          ...firebaseList[item],
+          index: item
+        })
+      }
+      return newAry
+    },
+  },
+})
+
 
 new Vue({
   router,

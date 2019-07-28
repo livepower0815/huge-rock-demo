@@ -179,16 +179,6 @@
           vm.products = vm.listFormat(snapshot.val())
         })
       },
-      listFormat (firebaseList) {  // compile firebase list to array
-        let newAry = []
-        for(let item in firebaseList) {
-          newAry.push({
-            ...firebaseList[item],
-            index: item
-          })
-        }
-        return newAry
-      },
       openModal(isNew, item) {
         if (isNew) {
           this.tempProduct = {
@@ -249,13 +239,21 @@
         this.tempProduct = Object.assign({}, item);
         $('#delProductModal').modal('show');
       },
-      confirmDelete() {
-        const vm = this;
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/admin/product/${vm.tempProduct.id}`;
-        this.$http.delete(api).then(res => {
-          $('#delProductModal').modal('hide');
-          vm.getProducts();
-        });
+      confirmDelete() {  // 刪除商品
+        const vm = this
+        db.ref(`huge-products/${vm.tempProduct.index}`).remove()
+          .then(function() {
+            vm.$notify({
+              title: '成功',
+              message: `刪除 ${vm.tempProduct.title} 成功`,
+              type: 'success'
+            })
+            console.log("Remove succeeded.")
+            $('#delProductModal').modal('hide')
+          })
+          .catch(function(error) {
+            console.log("Remove failed: " + error.message)
+          })
       },
       next (snapshot) {  //  計算上傳進度
         let percent = snapshot.bytesTransferred / snapshot.totalBytes * 100;

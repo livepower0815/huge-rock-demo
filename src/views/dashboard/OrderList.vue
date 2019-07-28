@@ -35,7 +35,7 @@
         </table>
       </div>
     </div>
-    <pagen @changePage="getOrderList" :propPage="pagination"></pagen>
+    <!-- <pagen @changePage="getOrderList" :propPage="pagination"></pagen> -->
 
   </div>
 </template>
@@ -56,22 +56,22 @@ export default {
     }
   },
   methods:{
-    getOrderList(page = 1){
-      const vm = this;
-      vm.isLoading = true;
-      const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/admin/orders?page=${page}`;
-      this.$http.get(api).then(res=>{
-        vm.orders = res.data.orders;
-        vm.pagination = res.data.pagination;
-        vm.isLoading = false;
-      });
-    },
-    checkout(id){
-      this.$router.push(`/dashboard/orderCheckout/${id}`);
-    }
+    // getOrderList(page = 1){
+    //   const vm = this;
+    //   vm.isLoading = true;
+    //   const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/admin/orders?page=${page}`;
+    //   this.$http.get(api).then(res=>{
+    //     vm.orders = res.data.orders;
+    //     vm.pagination = res.data.pagination;
+    //     vm.isLoading = false;
+    //   });
+    // },
+    // checkout(id){
+    //   this.$router.push(`/dashboard/orderCheckout/${id}`);
+    // }
   },
   created(){
-    this.getOrderList();
+    // this.getOrderList();
   },
 }
 </script>
