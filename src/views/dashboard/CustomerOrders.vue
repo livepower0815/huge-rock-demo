@@ -1,5 +1,6 @@
 <template>
   <div>
+    <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="true"></loading>
     <!-- 商品列表 -->
     <div class="row my-4">
       <div class="col-md-4 mb-4" v-for="(item, index) in products" :key="index">
@@ -15,7 +16,7 @@
           </div>
           <div class="card-footer d-flex">
             <button type="button" class="btn btn-outline-info btn-sm ml-auto" @click="getProduct(item)">
-              加到購物車
+              Add to cart
             </button>
           </div>
         </div>
@@ -68,9 +69,9 @@
         <table class="table">
           <thead>
             <th></th>
-            <th>品名</th>
-            <th>數量</th>
-            <th>單價</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Qty</th>
           </thead>
           <tbody>
             <tr v-for="(item, index) in carts" :key="`carts-${index}`">
@@ -82,7 +83,8 @@
               <td class="align-middle">
                 {{item.product_name}}
               </td>
-              <td class="align-middle"> {{item.product_type}} / {{item.product_qty}} </td>
+              <td class="align-middle"> {{item.product_type}}</td>
+              <td class="align-middle"> {{item.product_qty}} </td>
             </tr>
           </tbody>
         </table>
@@ -90,51 +92,36 @@
     </div>
 
     <!-- 建立訂單 -->
-    <!-- <div class="my-5 row justify-content-center">
-      <form class="col-md-6" @submit.prevent="createOrder">
+    <div class="my-5 row justify-content-center">
+      <form class="col-md-6">
         <div class="form-group">
           <label for="useremail">Email</label>
           <input type="email" class="form-control" name="email" id="useremail" 
-          :class="{'is-invalid':errors.has('email')}"
-          v-validate="'required|email'"
           v-model="form.user.email" placeholder="請輸入 Email">
-          <span class="text-danger" v-if="errors.has('email')">{{ errors.first('email') }}</span>
         </div>
 
         <div class="form-group">
           <label for="username">收件人姓名</label>
           <input type="text" class="form-control" name="name" id="username" 
-          :class="{'is-invalid':errors.has('name')}"
-          v-validate="'required'" v-model="form.user.name" placeholder="輸入姓名">
-          <span class="text-danger" v-if="errors.has('name')">姓名必須輸入</span>
+          v-model="form.user.name" placeholder="輸入姓名">
         </div>
 
         <div class="form-group">
           <label for="usertel">收件人電話</label>
           <input type="tel" class="form-control" id="usertel" name="tel"
-          :class="{'is-invalid':errors.has('tel')}"
-          v-validate="'required'" v-model="form.user.tel" placeholder="請輸入電話">
-          <span class="text-danger" v-if="errors.has('tel')">請輸入聯絡電話</span>
+          v-model="form.user.tel" placeholder="請輸入電話">
         </div>
 
-        <div class="form-group">
-          <label for="useraddress">收件人地址</label>
-          <input type="address" class="form-control" name="address" id="useraddress" 
-          :class="{'is-invalid':errors.has('address')}"
-          v-validate="'required'" v-model="form.user.address"
-            placeholder="請輸入地址">
-          <span class="text-danger" v-if="errors.has('address')">地址欄位不得留空</span>
-        </div>
 
         <div class="form-group">
           <label for="useraddress">留言</label>
           <textarea name="" id="" class="form-control" cols="30" rows="10" v-model="form.message"></textarea>
         </div>
         <div class="text-right">
-          <button class="btn btn-danger">送出訂單</button>
+          <button @click.prevent="createOrder" class="btn btn-danger">送出訂單</button>
         </div>
       </form>
-    </div> -->
+    </div>
 
 
   </div>
@@ -163,7 +150,6 @@
             name: '',
             email: '',
             tel: '',
-            address: '',
           },
           message: '',
         },
@@ -219,21 +205,33 @@
         const vm = this
         vm.carts = localStorage.cartList ? JSON.parse(localStorage.cartList) : []
       },
-      createOrder(){
-        const vm = this;
-        const url = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/order`;
-        const order = vm.form;
-        vm.isLoading = true;
-        this.$validator.validate().then((res)=>{
-          if(res){
-            this.$http.post(url,{data:order}).then((res)=>{
-              vm.isLoading = false;
-              this.$router.push(`/dashboard/orderCheckout/${res.data.orderId}`);
-            });
-          }else{
-            vm.isLoading = false;
+      createOrder(){  // 送出訂單
+        const vm = this
+        vm.isLoading = true
+        db.ref('huge-orderList').push({
+          name: vm.form.user.name,
+          email: vm.form.user.email,
+          tel : vm.form.user.tel,
+          message: vm.form.message,
+          products: vm.carts,
+        }).then(result => {
+          vm.isLoading = false
+          vm.$notify({
+            title: '成功',
+            message: `訂單新增成功`,
+            type: 'success'
+          })
+          vm.carts = []
+          localStorage.cartList = JSON.stringify([])
+          vm.form = {
+            user: {
+              name: '',
+              email: '',
+              tel: '',
+            },
+            message: '',
           }
-        });
+        })
         
       },
     },

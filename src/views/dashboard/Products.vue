@@ -1,5 +1,6 @@
 <template>
   <div>
+    <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="true"></loading>
     <div class="text-right">
       <button class="btn btn-primary mt-4" @click="openModal(true)">建立新產品</button>
     </div>
@@ -175,7 +176,9 @@
     methods: {
       getProducts() {  // get products list
         const vm = this
+        vm.isLoading = true
         db.ref('huge-products').on('value', function (snapshot) {
+          vm.isLoading = false
           vm.products = vm.listFormat(snapshot.val())
         })
       },
