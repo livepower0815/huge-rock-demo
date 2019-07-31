@@ -8,7 +8,7 @@ import CustomerOrders from '@/views/dashboard/CustomerOrders.vue'
 import Coupon from '@/views/dashboard/Coupon.vue';
 import OrderList from '@/views/dashboard/OrderList.vue';
 import orderCheckout from '@/views/dashboard/CustomerCheckout.vue';
-import Homepage from '@/views/HomePages/Homepage.vue';
+// import Homepage from '@/views/HomePages/Homepage.vue';
 import shopping from '@/views/HomePages/shopping.vue';
 import detail from '@/views/HomePages/detail.vue';
 import checkout from '@/views/HomePages/checkout.vue';
@@ -30,7 +30,7 @@ export default new Router({
         {
           path:'',
           name:'HomePage',
-          component:Homepage,
+          component:shopping,
         },
         {
           path:'shopping',

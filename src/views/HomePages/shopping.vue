@@ -2,15 +2,15 @@
   <div class="bg-set">
     <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="fullPage"></loading>
     <shoppingCart />
-    <div class="container mt-5">
+    <div class="container">
       <div class="row">
         <div class="col-12 text-center">
           <div class="pro-title">商品專區</div>
         </div>
       </div>
       <div class="row">
-        <div class="col-md-9">
-          <ol class="breadcrumb" style="background:none;">
+        <!-- <div class="col-md-9">
+          <ol class="breadcrumb" style="background:none;">  
             <li class="breadcrumb-item">
               <router-link to="/" class="text-white">首頁</router-link>
             </li>
@@ -18,16 +18,18 @@
               <router-link to="/shopping" class="text-white">商品專區</router-link>
             </li>
           </ol>
-        </div>
-        <div class="col-md-3">
+        </div> -->
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
           <div class="input-group mb-3">
             <input type="text" class="form-control" v-model="filterData" placeholder="請輸入商品名稱" aria-label="Recipient's username"
               aria-describedby="button-addon2">
             <div class="input-group-append">
-              <button class="btn btn-outline-light" type="button" id="button-addon2" @click="filterTitle"><i class="fas fa-search"></i></button>
+              <button class="btn btn-info" type="button" id="button-addon2" @click="filterTitle"><i class="fas fa-search"></i></button>
             </div>
           </div>
         </div>
+        <div class="col-md-4"></div>
       </div>
     </div>
     <div class="row mx-sm-5">
@@ -46,31 +48,25 @@
                 {{ item.category }}
               </div>
               <div class="imgContainer">
-                <div class="point my-img" @click="goDetail(item.id)" :style="{backgroundImage:`url(${item.imageUrl})`}">
+                <div class="point my-img" @click="goDetail(item.index)" :style="{backgroundImage:`url(${item.img_url})`}">
                 </div>
               </div>
               <div class="card-body">
-                <span class="badge badge-primary float-right ml-2">{{ item.description }}</span>
+                <span class="badge badge-primary float-right ml-2">{{ item.code }}</span>
                 <h5 class="card-title">
                   <h5 class="text-dark">{{ item.title }}</h5>
                 </h5>
                 <div class="alert alert-info" role="alert">
-                  {{ item.content }}
-                </div>
-                <!-- <p class="card-text">{{ item.content }}</p> -->
-                <div class="d-flex justify-content-between align-items-baseline">
-                  <!-- <div class="h5">2,800 元</div> -->
-                  <!-- <del class="h6">原價 {{ item.origin_price }} 元</del>
-                  <div class="h5">特惠 <span class="text-danger">{{ item.price }}</span> 元</div> -->
+                  {{ item.description }}
                 </div>
               </div>
               <div class="card-footer d-flex">
-                <button type="button" class="btn btn-outline-primary btn-sm" @click="goDetail(item.id)">
-                  <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i>
+                <button type="button" class="btn btn-outline-primary btn-sm" @click="goDetail(item.index)">
+                  <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.index"></i>
                   查看更多
                 </button>
                 <button type="button" class="btn btn-outline-info btn-sm ml-auto" @click="addtoCart(item)">
-                  <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i>
+                  <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.index"></i>
                   加到購物車
                 </button>
               </div>
@@ -84,7 +80,9 @@
 
 <script>
   import $ from 'jquery';
-  import shoppingCart from '../../components/shoppingCart.vue';
+  import shoppingCart from '../../components/shoppingCart.vue'
+  import {db} from '@/firebase.js'
+
   export default {
     components: {
       shoppingCart,
@@ -117,15 +115,14 @@
       };
     },
     methods: {
-      getProducts() {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/products/all`;
-        const vm = this;
-        vm.isLoading = true;
-        this.$http.get(api).then(res => {
-          vm.products = res.data.products;
-          vm.filterProducts = res.data.products;
-          vm.isLoading = false;
-        });
+      getProducts() {  // 取得商品列表
+        const vm = this
+        this.isLoading = true
+        db.ref('huge-products').once('value', function (snapshot) {
+          vm.products = vm.listFormat(snapshot.val())
+          vm.filterProducts = vm.listFormat(snapshot.val())
+          vm.isLoading = false
+        })
       },
       addtoCart(item, qty = 1) {
         const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
@@ -150,21 +147,18 @@
         });
       },
       filterPro(name) {
-        const vm = this;
-        let newArray = [];
+        const vm = this
         if (name == '') {
-          vm.filterProducts = vm.products;
+          vm.filterProducts = vm.products
         } else {
-          newArray = vm.products.filter(function (product) {
-            return product.category == name;
+          vm.filterProducts = vm.products.filter(function (product) {
+            return product.category == name
           });
-          vm.filterProducts = newArray;
         }
       },
       filterTitle() {
         const vm = this;
         vm.filterProducts = vm.products.filter(function (product) {
-
           return product.title.indexOf(vm.filterData) > -1;
         });
         vm.filterData = '';
@@ -186,14 +180,13 @@
 
 <style lang="scss" scoped>
   .bg-set {
-    color: white;
-    background: linear-gradient(to right,rgb(27, 99, 141),rgb(0, 71, 112),rgb(0, 71, 112),rgb(27, 99, 141));
+    color: black;
   }
 
   .pro-title {
-
+    padding: 20px;
     display: inline-block;
-    font-size: 30px;
+    font-size: 40px;
   }
 
   .side-list {

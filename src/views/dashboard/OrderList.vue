@@ -3,7 +3,7 @@
     <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="true"></loading>
     <div class="row d-flex justify-content-center">
       <div class="col-md-12">
-        <table class="table mt-4 table-striped table-hover">
+        <table id="out-table" class="table mt-4 table-striped table-hover">
           <thead class="thead-dark">
             <tr>
               <th width="120">Name</th>
@@ -14,7 +14,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in orders" :key="index" @dblclick="checkout(item.id)">
+            <tr v-for="(item, index) in orders" :key="index">
               <td> {{item.name}} </td>
               <td> {{item.email}} </td>
               <td>
@@ -33,6 +33,7 @@
             </tr>
           </tbody>
         </table>
+        <button @click="exportExecl" type="button" class="btn btn-primary">Export Excel file</button>
       </div>
     </div>
     <!-- <pagen @changePage="getOrderList" :propPage="pagination"></pagen> -->
@@ -43,6 +44,9 @@
 <script>
 import pagen from '../../components/pagination'
 import {db} from '@/firebase.js'
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
+
 
 
 export default {
@@ -65,6 +69,16 @@ export default {
         vm.orders = vm.listFormat(snapshot.val())
         vm.isLoading = false
       })
+    },
+    exportExecl () {  // 將 table 匯出成 excel
+      /* generate workbook object from table */
+      let wb = XLSX.utils.table_to_book(document.querySelector('#out-table'))
+      /* get binary string as output */
+      let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
+      try {
+      FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'sheetjs.xlsx')
+      } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
+      return wbout
     },
     removeOrder (index) {
       const vm = this

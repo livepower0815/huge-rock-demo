@@ -2,15 +2,15 @@
   <div>
     <shoppingCart/>
     <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="fullPage"></loading>
-    <div class="container text-white mb-5">
+    <div class="container mb-5 bg-self">
       <div class="row">
         <div class="col-md-8">
           <ol class="breadcrumb" style="background:none;">
             <li class="breadcrumb-item">
-              <router-link to="/" class="text-white">首頁</router-link>
+              <router-link to="/" >首頁</router-link>
             </li>
             <li class="breadcrumb-item">
-              <router-link to="/shopping" class="text-white">商品專區</router-link>
+              <router-link to="/shopping" >商品專區</router-link>
             </li>
             <li class="breadcrumb-item">
               {{ product.title }}
@@ -23,24 +23,29 @@
 
       <div class="row">
         <div class="col-md-7">
-          <img :src="product.imageUrl" class="img-fluid rounded" alt="img">
+          <img :src="product.img_url" class="img-fluid rounded" alt="img">
         </div>
         <div class="col-md-5 bg-blue">
-          <h3>{{product.title}} ({{ product.description }})<div class="pro-title text-center ml-3"> {{product.category}}</div>
+          <h3 class="text-white">{{product.title}} ({{ product.code }})<div class="pro-title text-center ml-3"> {{product.category}}</div>
           </h3>
-          <h5 class="my-4 mylh">{{product.content}}</h5>
-          <!-- <p class="text-right text-white-50">--{{product.description}}</p> -->
-          <div class="d-flex justify-content-between align-items-baseline mb-3">
-            <!-- <div class="h5">2,800 元</div> -->
-            <!-- <del class="h6">原價 {{product.origin_price}} 元</del>
-            <div class="h4">現正特惠價 {{product.price}} 元</div> -->
+          <h5 class="my-4 mylh text-white">{{product.description}}</h5>
+          <div class="row">
+            <div class="col-4">
+              <select style="width: 150px;" class="form-control" v-model="optionType">
+                <option value="A4-SWATCH">A4-SWATCH</option>
+                <option value="handout">handout</option>
+                <option value="yard">yard</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <select style="width: 100px;" class="form-control" v-model="optionNum">
+                <option v-for="(i, index) in 8" :key="`type-${index}`" :value="i">{{ i }} unit</option>
+              </select>
+            </div>
+            <div class="col-4"></div>
           </div>
-          <select class="form-control" v-model="optionNum">
-            <option v-for="(i, index) in 8" :key="index" :value="i">選購{{ i }}件</option>
-          </select>
           <div class="my-5 d-flex justify-content-end align-items-baseline">
-              <!-- <span class="pr-3 text-white ml-4">合計 {{ optionNum * product.price }} 元</span> -->
-              <button type="button" class="btn btn-info" @click="addtoCart(product,optionNum)">加到購物車</button>
+              <button type="button" class="btn btn-info" @click="addtoCart(product,optionNum)">Add to cart</button>
           </div>
           
         </div>
@@ -51,6 +56,8 @@
 
 <script>
   import shoppingCart from '../../components/shoppingCart.vue';
+  import {db} from '@/firebase.js'
+
   
   export default {
     components:{
@@ -62,6 +69,7 @@
         fullPage: true,
         product: {},
         optionNum: '1',
+        optionType: 'A4-SWATCH',
       }
     },
     methods: {
@@ -91,16 +99,20 @@
     created() {
       const vm = this;
       vm.isLoading = true;
-      const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/product/${vm.$route.params.productId}`;
-      this.$http.get(api).then((res) => {
-        vm.product = res.data.product;
-        vm.isLoading = false;
-      });
+      db.ref('huge-products/' + vm.$route.params.productId).once('value', function (snapshot) {
+        vm.isLoading = false
+        vm.product = snapshot.val()
+      })
     }
   }
 </script>
 
 <style lang="scss" scoped>
+  .bg-self {
+    color: black;
+    min-height: 80vh;
+  }
+
   .pro-title {
     background: rgb(250, 196, 134);
     display: inline-block;

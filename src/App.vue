@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="bgColor">
     
     <router-view/>
   </div>
@@ -9,7 +9,8 @@
 @import "./assets/all";
 
 .bgColor {
-  background: rgb(214, 238, 234);
+  background: rgb(194, 217, 248);
+  min-height: 100vh;
 }
 
 </style>

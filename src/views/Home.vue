@@ -2,8 +2,6 @@
   <div class="">
     <!-- navbar元件 -->
     <navbar class="sticky-top" />
-    <AlertMessage />
-    <div class="bg-gray"></div>
     <main>
 
       <!-- 分頁router -->
@@ -12,9 +10,12 @@
 
       <!-- FOOTER -->
     </main>
+
+    <AlertMessage />
     <footer>
       <p class="my-0 ali_mid">Copyright 2019 ©猴寶電子商務練習用版型 無商業用途</p>
     </footer>
+
   </div>
 </template>
 
@@ -87,7 +88,6 @@
     left: 0;
     background: #343a40;
     z-index: -1100;
-
   }
 
   .ali_mid {
