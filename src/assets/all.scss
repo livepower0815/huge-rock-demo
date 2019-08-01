@@ -1,3 +1,19 @@
 @import "~bootstrap/scss/functions";
 @import "./helpers/_variables";
 @import "~bootstrap/scss/bootstrap";
+// @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);  // 思源黑體
+// @import url(https://fonts.googleapis.com/earlyaccess/cwtexkai.css);  // 楷體字體
+// @import url(https://fonts.googleapis.com/earlyaccess/cwtexyen.css);  // 圓體字體
+// @import url(https://fonts.googleapis.com/earlyaccess/cwtexfangsong.css); // cwTeXFangSong 仿宋體字體
+@import url(https://fonts.googleapis.com/earlyaccess/notosanstc.css);  //  cwTeXMing 明體字體
+
+
+body {
+    // font-family: 'Noto Sans TC', sans-serif;  // 思源黑體
+    // font-family: 'cwTeXKai', serif;  // 楷體字體
+    // font-family: 'cwTeXYen', sans-serif;  // 圓體字體
+    // font-family: 'cwTeXFangSong', serif;  // cwTeXFangSong 仿宋體字體
+    font-family: 'Noto Sans TC', sans-serif;  //  cwTeXMing 明體字體
+}
+
+

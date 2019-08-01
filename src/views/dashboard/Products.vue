@@ -266,6 +266,7 @@
         console.log('loading was completed !')
         const vm = this
         storage.ref('photo/' + vm.currentFileName).getDownloadURL().then(url => {
+          this.isLoading = false
           vm.tempProduct.img_url = url
         })
       },
@@ -273,6 +274,7 @@
         const vm = this
         const uploadedFile = this.$refs.files.files[0]
         this.currentFileName = uploadedFile.name
+        this.isLoading = true
         storage.ref('photo/' + uploadedFile.name).put(uploadedFile)
           .on('state_changed',vm.next ,null, vm.completeUpload)
       },

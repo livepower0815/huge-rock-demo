@@ -7,10 +7,10 @@
         <div class="col-md-8">
           <ol class="breadcrumb" style="background:none;">
             <li class="breadcrumb-item">
-              <router-link to="/" >首頁</router-link>
+              <router-link to="/" >Home Page</router-link>
             </li>
             <li class="breadcrumb-item">
-              <router-link to="/shopping" >商品專區</router-link>
+              <router-link to="/shopping" >Products section</router-link>
             </li>
             <li class="breadcrumb-item">
               {{ product.title }}
@@ -45,7 +45,7 @@
             <div class="col-4"></div>
           </div>
           <div class="my-5 d-flex justify-content-end align-items-baseline">
-              <button type="button" class="btn btn-info" @click="addtoCart(product,optionNum)">Add to cart</button>
+              <button type="button" class="btn btn-info" @click="addtoCart(product, optionType, optionNum)">Add to cart</button>
           </div>
           
         </div>
@@ -73,27 +73,22 @@
       }
     },
     methods: {
-      addtoCart(item, qty = 1) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
-        const vm = this;
-        vm.isLoading = true;
-        const cart = {
-          data: {
-            product_id: item.id,
-            qty,
-          },
-        };
-        this.$http.post(api, cart).then((res) => {
-          let masg = item.title + res.data.message;
-          // vm.$bus.$emit('messsagePush', masg, 'success');
-          vm.$notify({
-            title: '成功',
-            message: masg,
-            type: 'success'
-          });
-          vm.$bus.$emit('updateCart');
-          vm.isLoading = false;
+      addtoCart(item, type, qty = 1) {  //  添加至購物車
+        const vm = this
+        let carts = localStorage.cartList ? JSON.parse(localStorage.cartList) : []
+        carts.push({
+          product_name: item.title,
+          product_img_url: item.img_url,
+          product_type: type,
+          product_qty: qty,
+        })
+        localStorage.cartList = JSON.stringify(carts)
+        vm.$notify({
+          title: 'success',
+          message: 'Successfully added products.',
+          type: 'success'
         });
+        vm.$bus.$emit('updateCart')
       },
     },
     created() {

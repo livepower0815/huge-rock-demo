@@ -1,7 +1,8 @@
 <template>
   <div>
+    <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="true"></loading>
     <navbar/>
-    <form class="form-signin py-5" @submit.prevent="signin">
+    <form class="form-signin py-5">
       <h1 class="h3 mb-3 font-weight-normal">請輸入帳號密碼</h1>
       <label for="inputEmail" class="sr-only">請輸入帳號</label>
       <input type="email" id="inputEmail" class="form-control my-3" placeholder="Email address" v-model="user.username"
@@ -14,7 +15,7 @@
           <input type="checkbox" value="remember-me"> Remember me
         </label>
       </div> -->
-      <button class="btn btn-lg btn-primary btn-block" type="submit">登入</button>
+      <button  @click.prevent="signin" class="btn btn-lg btn-primary btn-block" type="button">登入</button>
       <p class="mt-5 mb-3 text-muted">&copy; 2019-2020</p>
     </form>
   </div>
@@ -22,6 +23,9 @@
 
 <script>
   import navbar from '../components/homeNavBar.vue';
+  import {auth} from '@/firebase.js'
+
+
   export default {
     components:{
       navbar,
@@ -32,18 +36,31 @@
         user: {
           username: "",
           password: "",
-        }
+        },
+        isLoading: false,
       };
     },
     methods: {
       signin() {
-        const api = `${process.env.VUE_APP_APIPATH}/admin/signin`;
-        const vm = this;
-        this.$http.post(api,vm.user).then(res => {
-          if(res.data.success){
+        const vm = this
+        vm.isLoading = true
+        auth.signInWithEmailAndPassword(this.user.username, this.user.password)
+          .then(user => {
+            vm.isLoading = false
             vm.$router.push('/dashboard/products');
-          }
-        });
+          })
+          .catch(function(error) {
+            vm.isLoading = false
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            if (errorCode === 'auth/wrong-password') {
+              alert('Wrong password.');
+            } else {
+              alert(errorMessage);
+            }
+            console.log(error);
+          });
       }
     }
   };

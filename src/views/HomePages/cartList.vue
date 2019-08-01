@@ -3,23 +3,40 @@
     <loading :active.sync="isLoading" loader="dots" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div class="container py-5">
       <div class="row">
+        <div class="col-md-4 text-center ">
+          <span class="h4 carts_title">1.Carts detail</span>
+        </div>
+        <div class="col-md-4 text-center ">
+          <span class="h4 no_title">2.Check out</span>
+        </div>
+        <div class="col-md-4 text-center ">
+          <span class="h4 no_title">3.Order completed！</span>
+        </div>
+      </div>
+      
+      <div class="row mt-5">
         <div class="col-md-8 text-primary">
-          <h3 class="text-center black-50 bg-primary text-light">購物車內容</h3>
-          <div class="list-item row" v-for="(item, index) in cart.carts" :key="index">
-            <div class="col-md-6 d-flex align-items-center">
-              <div class="img-item" :style="`background-image: url(${item.product.imageUrl});`"></div>
+          <h3 class="text-center black-50 bg-primary text-light">Carts content</h3>
+          <div class="list-item row" v-for="(item, idx) in carts" :key="idx">
+            <div class="col-md-5 d-flex align-items-center">
+              <div class="img-item" :style="`background-image: url(${item.product_img_url});`"></div>
               <div class="d-inline-block">
-                <p class="h5">{{item.product.title}}</p>
-                {{item.qty}}個 ${{item.product.price | NumCeiling}}
+                <p class="h4">{{item.product_name}}</p>
+              </div>  
+            </div>
+
+            <div class="col-md-4 d-flex align-items-center">
+              <div class="d-inline-block h5">
+                {{item.product_type}} 
               </div>
             </div>
 
-            <div class="col-md-6 d-flex align-items-center">
+            <div class="col-md-3 d-flex align-items-center">
               <div class="ml-auto">
-                <div class="d-inline-block h4">
-                  NT {{item.final_total | NumCeiling |currency}}
+                <div class="d-inline-block h5">
+                  Qty:  {{item.product_qty}} 
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm ml-5" @click="removeCart(item.id)">
+                <button type="button" class="btn btn-outline-danger btn-sm ml-5" @click="removeCart(item.product_name, idx)">
                   <i class="far fa-trash-alt"></i>
                 </button>
               </div>
@@ -29,37 +46,14 @@
         </div>
         <div class="col-md-4">
           <div class="bg-primary text-white px-4 bdr">
-            <h3 class="myTitle">價格摘要</h3>
-            <div class="d-flex justify-content-between my-3">
-              <span>小計</span>
-              <span>NT {{cart.total | currency}}</span>
-            </div>
+            <h3 class="myTitle">Summary</h3>
             <div class="d-flex justify-content-between my-4">
-              <span>折扣</span>
-              <span v-if="cart.total == cart.final_total">請在下面輸入優惠碼</span>
-              <span v-else>NT {{cart.total - cart.final_total | NumCeiling |currency}}</span>
-            </div>
-            <div class="input-group mb-3 input-group-sm">
-              <input type="text" class="form-control" v-model="coupon_code" placeholder="請輸入優惠碼">
-              <div class="input-group-append">
-                <button class="btn btn-outline-light" type="button" @click="addCouponCode">
-                  套用優惠碼
-                </button>
-              </div>
-            </div>
-            <div class="d-flex justify-content-between my-4">
-              <span class="h4">總計</span>
-              <span class="h4">NT {{cart.final_total | NumCeiling |currency}}</span>
+              <span class="h4">Count</span>
+              <span class="h4">{{carts.length}} items</span>
             </div>
             <div class="text-right pb-4">
-              <button type="button" class="btn btn-info" @click="goCheckout">結帳去</button>
+              <button type="button" class="btn btn-info" @click="goCheckout">Check out</button>
             </div>
-          </div>
-          <div class="alert alert-info" role="alert">
-            可輸入優惠碼<br>
-            1.super<br>
-            2.okokcode<br>
-            3.okCode
           </div>
         </div>
       </div>
@@ -71,35 +65,25 @@
   export default {
     data() {
       return {
-        cart: {},
+        carts: [],
         isLoading: false,
         fullPage: true,
         coupon_code: '',
       };
     },
     methods: {
-      getCart() {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
-        const vm = this;
-        vm.isLoading = true;
-        this.$http.get(api).then((res) => {
-          vm.cart = res.data.data;
-          vm.isLoading = false;
-        });
+      getCart() {  
+        const vm = this
+        vm.carts = localStorage.cartList ? JSON.parse(localStorage.cartList) : []
       },
-      removeCart(id) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart/${id}`;
-        const vm = this;
-        vm.isLoading = true;
-        this.$http.delete(api).then((res) => {
-          this.getCart();
-          // vm.$bus.$emit('messsagePush', res.data.message, 'success');
-          vm.$notify({
-            title: '成功',
-            message: res.data.message,
-            type: 'success'
-          });
-          vm.isLoading = false;
+      removeCart(product_name, index) {
+        const vm = this
+        vm.carts.splice(index, 1)
+        localStorage.cartList = JSON.stringify(vm.carts)
+        vm.$notify({
+          title: '刪除成功',
+          message: `已刪除${product_name}`,
+          type: 'success'
         });
       },
       addCouponCode() {
@@ -180,5 +164,30 @@
 
   .bdr {
     border-radius: 3px;
+  }
+
+  .carts_title {
+    color: white;
+    background: #1aac98;
+    border-radius: 4px;
+    height: 40px;
+    line-height: 40px;
+    padding: 10px 30px;
+  }
+
+  .pay_title {
+    color: white;
+    background: #36679b;
+    border-radius: 4px;
+    height: 40px;
+    line-height: 40px;
+    padding: 10px 30px;
+  }
+
+  .no_title {
+    border-radius: 4px;
+    height: 40px;
+    line-height: 40px;
+    padding: 10px 30px;
   }
 </style>

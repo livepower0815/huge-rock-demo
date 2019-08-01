@@ -5,7 +5,7 @@
     <div class="container">
       <div class="row">
         <div class="col-12 text-center">
-          <div class="pro-title">商品專區</div>
+          <div class="pro-title">Products section</div>
         </div>
       </div>
       <div class="row">
@@ -61,13 +61,12 @@
                 </div>
               </div>
               <div class="card-footer d-flex">
-                <button type="button" class="btn btn-outline-primary btn-sm" @click="goDetail(item.index)">
+                <!-- <button type="button" class="btn btn-outline-primary btn-sm" @click="goDetail(item.index)">
                   <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.index"></i>
                   查看更多
-                </button>
-                <button type="button" class="btn btn-outline-info btn-sm ml-auto" @click="addtoCart(item)">
-                  <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.index"></i>
-                  加到購物車
+                </button> -->
+                <button type="button" class="btn btn-outline-info btn-sm ml-auto" @click="goDetail(item.index)">
+                  add to carts
                 </button>
               </div>
             </div>
@@ -123,28 +122,6 @@
           vm.filterProducts = vm.listFormat(snapshot.val())
           vm.isLoading = false
         })
-      },
-      addtoCart(item, qty = 1) {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
-        const vm = this;
-        vm.isLoading = true;
-        const cart = {
-          data: {
-            product_id: item.id,
-            qty,
-          },
-        };
-        this.$http.post(api, cart).then((res) => {
-          let masg = item.title + res.data.message;
-          // vm.$bus.$emit('messsagePush', masg, 'success');
-          vm.$notify({
-            title: '成功',
-            message: masg,
-            type: 'success'
-          });
-          vm.$bus.$emit('updateCart');
-          vm.isLoading = false;
-        });
       },
       filterPro(name) {
         const vm = this

@@ -13,7 +13,7 @@
 
     <AlertMessage />
     <footer>
-      <p class="my-0 ali_mid">Copyright 2019 ©猴寶電子商務練習用版型 無商業用途</p>
+      <p class="my-0 ali_mid">Copyright 2019 © Huge Bamboo 巨竹</p>
     </footer>
 
   </div>

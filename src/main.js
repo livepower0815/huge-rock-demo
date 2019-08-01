@@ -14,6 +14,9 @@ import zhTWValidate from 'vee-validate/dist/locale/zh_TW.js';
 import dateFormat from './filters/dateFormat';
 import * as VueGoogleMaps from 'vue2-google-maps'
 
+// 引入 firebase auth
+import {auth} from '@/firebase.js'
+
 //引入 ElementUI
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -54,6 +57,20 @@ Vue.mixin({
   },
 })
 
+// 監聽 firebase Observed the user status changing.
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    console.log('User is signed in.')
+    localStorage.userSignin = 'Y'
+  } else {
+    // User is signed out.
+    console.log('User is signed out.')
+    localStorage.userSignin = 'N'
+  }
+});
+
+
 
 new Vue({
   router,
@@ -63,16 +80,15 @@ new Vue({
 
 router.beforeEach((to,from,next)=>{
   if(to.meta.requiresAuth){
-    const api = `${process.env.VUE_APP_APIPATH}/api/user/check`;
-    axios.post(api).then(res => {
-      if(res.data.success){
+    setTimeout(() => {
+      if(localStorage.userSignin == 'Y'){
         next();
       }else{
         next({
-          path:'/login',
-        })
+          path: '/login',
+        });
       }
-    });
+    }, 200);
   }else{
     next();
   }

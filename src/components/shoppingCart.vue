@@ -19,12 +19,9 @@
     },
     methods: {
       getCart() {
-        const api = `${process.env.VUE_APP_APIPATH}/api/tingwankuo/cart`;
-        const vm = this;
-        this.$http.get(api).then((res) => {
-          vm.cart = res.data.data;
-          vm.cartNum = vm.cart.carts.length;
-        });
+        const vm = this
+        vm.cart = localStorage.cartList ? JSON.parse(localStorage.cartList) : []
+        vm.cartNum = vm.cart.length;
       },
       goCheckout(){
         const vm = this;
@@ -33,7 +30,6 @@
         }else{
           this.$router.push('/cartList');
         }
-        
       },
     },
     created() {

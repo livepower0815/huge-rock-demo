@@ -14,6 +14,10 @@
 </template>
 
 <script>
+  // 引入 firebase auth
+  import {auth} from '@/firebase.js'
+
+  
   export default {
     name: 'NavBar',
     data() {
@@ -23,18 +27,15 @@
     },
     methods: {
       signout() {
-        const api = `${process.env.VUE_APP_APIPATH}/logout`;
-        this.$http.post(api).then(res => {
-          if (res.data.success) {
-            this.$router.push('/login');
-          };
-        });
-      },
-      check() {
-        const api = `${process.env.VUE_APP_APIPATH}/api/user/check`;
-        this.$http.post(api).then(res => {
-          console.log(res.data);
-
+        const vm = this
+        auth.signOut().then(result => {
+          vm.$router.push('/login');
+        })
+        .catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          // ...
         });
       },
     }
