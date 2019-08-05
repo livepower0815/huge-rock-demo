@@ -45,7 +45,13 @@
 import pagen from '../../components/pagination'
 import {db} from '@/firebase.js'
 import FileSaver from 'file-saver'
-import XLSX from 'xlsx'
+import XLSX1 from 'xlsx'
+// import xlsxStyle from 'xlsx-style'
+// import XLSX from 'xlsx-style'
+// import 'xlsx-style/dist/xlsx.full.min.js'
+// import 'xlsx-style/dist/xlsx.js'
+// import 'xlsx-style/dist/cpexcel.js'
+// import 'xlsx-style/xlsx.js'
 
 
 
@@ -71,13 +77,13 @@ export default {
       })
     },
     exportExecl () {  // 將 table 匯出成 excel
+      const vm = this
       /* generate workbook object from table */
-      let wb = XLSX.utils.table_to_book(document.querySelector('#out-table'))
+      let wb = XLSX1.utils.table_to_book(document.querySelector('#out-table'))
       /* get binary string as output */
-      console.log(wb)
       wb.Sheets.Sheet1.A1.s = {
         font: {
-          sz: 13,
+          sz: 30,
           bold: true,
           color: {
             rgb: "FFFFAA00"
@@ -89,11 +95,33 @@ export default {
           wrap_text: true
         }
       }
-      let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
+      wb.Sheets.Sheet1.C1.s = {
+        font: {
+          sz: 30,
+          bold: true,
+          color: {
+            rgb: "FFFFAA00"
+          }
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center",
+          wrap_text: true
+        }
+      }
+      console.log(wb)
+      let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' })
       try {
-      FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'sheetjs.xlsx')
+        // FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'sheetjs.xlsx')
+        FileSaver.saveAs(new Blob([vm.s2ab(wbout)], { type: 'application/octet-stream' }), 'sheetjs.xlsx')
       } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
       return wbout
+    },
+    s2ab(s) {
+      var buf = new ArrayBuffer(s.length);
+      var view = new Uint8Array(buf);
+      for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
     },
     removeOrder (index) {
       const vm = this
