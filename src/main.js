@@ -21,6 +21,13 @@ import {auth} from '@/firebase.js'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
+//引入 xlsx-style
+// import 'xlsx-style/dist/xlsx.full.min.js'
+// import 'xlsx-style/dist/xlsx.js'
+// import 'xlsx-style/dist/cpexcel.js'
+// import 'xlsx-style/xlsx.js'
+
+
 //使用 ElementUI
 Vue.use(ElementUI);
 

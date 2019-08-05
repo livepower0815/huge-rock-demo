@@ -74,6 +74,21 @@ export default {
       /* generate workbook object from table */
       let wb = XLSX.utils.table_to_book(document.querySelector('#out-table'))
       /* get binary string as output */
+      console.log(wb)
+      wb.Sheets.Sheet1.A1.s = {
+        font: {
+          sz: 13,
+          bold: true,
+          color: {
+            rgb: "FFFFAA00"
+          }
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center",
+          wrap_text: true
+        }
+      }
       let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
       try {
       FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'sheetjs.xlsx')
