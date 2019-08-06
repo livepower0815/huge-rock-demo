@@ -19,21 +19,17 @@
             </li>
           </ol>
         </div> -->
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" v-model="filterData" placeholder="請輸入商品名稱" aria-label="Recipient's username"
-              aria-describedby="button-addon2">
-            <div class="input-group-append">
-              <button class="btn btn-info" type="button" id="button-addon2" @click="filterTitle"><i class="fas fa-search"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4"></div>
       </div>
     </div>
     <div class="row mx-sm-5">
-      <div class="col-md-2">
+      <div class="col-md-2 text-white mt-md-4">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" v-model="filterData" placeholder="Search" aria-label="Recipient's username"
+            aria-describedby="button-addon2">
+          <div class="input-group-append">
+            <button class="btn btn-info" type="button" id="button-addon2" @click="filterTitle"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
         <div class="text-center side-list" @click="filterPro('')">全部商品</div>
         <div class="text-center side-list" @click="filterPro('運動')">運動</div>
         <div class="text-center side-list" @click="filterPro('登山')">登山</div>
@@ -161,9 +157,11 @@
   }
 
   .pro-title {
-    padding: 20px;
+    margin: 25px;
     display: inline-block;
-    font-size: 40px;
+    font-size: 35px;
+    color: rgb(241, 239, 239);
+    text-shadow: 1px 1px 3px rgb(224, 217, 217);
   }
 
   .side-list {
@@ -172,14 +170,15 @@
     line-height: 40px;
     font-size: 20px;
     /* width: 100px; */
-    transition: all 0.4s;
+    transition: all 0.5s;
     margin: 20px 0;
-    border-radius: 20px;
+    border-radius: 20px 0 10px 0 ;
   }
 
   .side-list:hover {
     cursor: pointer;
-    background: #2ba595;
+    background: #3069a7;
+    border-radius: 10px;
   }
 
   .point {

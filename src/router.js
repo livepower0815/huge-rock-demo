@@ -77,6 +77,7 @@ export default new Router({
       path:'/login',
       name:'login',
       component:login,
+      meta: { bgColor: true },
     },
     {
       path:'/test',
@@ -87,36 +88,37 @@ export default new Router({
     {
       path:'/dashboard',
       component:Dashboard,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, bgColor: true },
       children:[
         {
           path:'products',
           name:'products',
           component:products,
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true, bgColor: true },
         },
         {
           path:'customerOrders',
           name:'CustomerOrders',
           component:CustomerOrders,
+          meta: { bgColor: true },
         },
         {
           path:'coupon',
           name:'Coupon',
           component:Coupon,
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true, bgColor: true },
         },
         {
           path:'orderList',
           name:'orderList',
           component:OrderList,
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true, bgColor: true },
         },
         {
           path:'orderCheckout/:orderId',
           name:'orderCheckout',
           component:orderCheckout,
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true, bgColor: true },
         },
       ],
     }

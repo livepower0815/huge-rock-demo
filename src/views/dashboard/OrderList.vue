@@ -84,7 +84,7 @@ export default {
       let ws = wb.Sheets.Sheet1
       
       // 欄位寬度
-      ws['!cols'] = [{wch:15},{wch:25},{wch:25},{wch:15}]
+      ws['!cols'] = [{wch:15},{wch:30},{wch:35},{wch:15}]
 
       // 表頭 style 設定
       const headerIndex = ['A','B','C','D','E']

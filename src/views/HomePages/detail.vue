@@ -10,9 +10,9 @@
               <router-link to="/" >Home Page</router-link>
             </li>
             <li class="breadcrumb-item">
-              <router-link to="/shopping" >Products section</router-link>
+              <router-link to="/shopping" >Products</router-link>
             </li>
-            <li class="breadcrumb-item">
+            <li class="breadcrumb-item text-primary">
               {{ product.title }}
             </li>
           </ol>
@@ -30,19 +30,18 @@
           </h3>
           <h5 class="my-4 mylh text-white">{{product.description}}</h5>
           <div class="row">
-            <div class="col-4">
+            <div class="col-5">
               <select style="width: 150px;" class="form-control" v-model="optionType">
                 <option value="A4-SWATCH">A4-SWATCH</option>
                 <option value="handout">handout</option>
                 <option value="yard">yard</option>
               </select>
             </div>
-            <div class="col-4">
+            <div class="col-7">
               <select style="width: 100px;" class="form-control" v-model="optionNum">
                 <option v-for="(i, index) in 8" :key="`type-${index}`" :value="i">{{ i }} unit</option>
               </select>
             </div>
-            <div class="col-4"></div>
           </div>
           <div class="my-5 d-flex justify-content-end align-items-baseline">
               <button type="button" class="btn btn-info" @click="addtoCart(product, optionType, optionNum)">Add to cart</button>
