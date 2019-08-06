@@ -81,34 +81,34 @@ export default {
       /* generate workbook object from table */
       let wb = XLSX1.utils.table_to_book(document.querySelector('#out-table'))
       /* get binary string as output */
-      wb.Sheets.Sheet1.A1.s = {
-        font: {
-          sz: 30,
-          bold: true,
-          color: {
-            rgb: "FFFFAA00"
+      let ws = wb.Sheets.Sheet1
+      
+      // 欄位寬度
+      ws['!cols'] = [{wch:15},{wch:25},{wch:25},{wch:15}]
+
+      // 表頭 style 設定
+      const headerIndex = ['A','B','C','D','E']
+      headerIndex.forEach(item => {
+        ws[`${item}1`].s = {
+          fill: {
+            // patternType: "none", // none / solid
+            fgColor: {rgb: "7575a3"}
+          },
+          font: {
+            sz: 16,
+            bold: true,
+            color: {
+              rgb: "ffffff"
+            }
+          },
+          alignment: {
+            // horizontal: "center",
+            vertical: "center",
+            wrap_text: true
           }
-        },
-        alignment: {
-          horizontal: "center",
-          vertical: "center",
-          wrap_text: true
         }
-      }
-      wb.Sheets.Sheet1.C1.s = {
-        font: {
-          sz: 30,
-          bold: true,
-          color: {
-            rgb: "FFFFAA00"
-          }
-        },
-        alignment: {
-          horizontal: "center",
-          vertical: "center",
-          wrap_text: true
-        }
-      }
+      })
+
       console.log(wb)
       let wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' })
       try {
@@ -147,3 +147,11 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+
+.test {
+  color: rgb(71, 70, 70);
+}
+
+</style>
