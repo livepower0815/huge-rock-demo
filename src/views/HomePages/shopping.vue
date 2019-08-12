@@ -38,7 +38,7 @@
       </div>
       <div class="col-md-10 text-dark">
         <div class="row my-4">
-          <div class="col-md-3 mb-3" v-for="(item, index) in filterProducts" :key="index">
+          <div class="col-md-4 mb-3" v-for="(item, index) in filterProducts" :key="index">
             <div class="card border-0 shadow-sm mycard">
               <div class="showCate">
                 {{ item.category }}
